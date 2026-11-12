@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE `users` ADD COLUMN `rtId` VARCHAR(191) NULL,
+    ADD COLUMN `rwId` VARCHAR(191) NULL;
+
+-- AddForeignKey
+ALTER TABLE `users` ADD CONSTRAINT `users_rtId_fkey` FOREIGN KEY (`rtId`) REFERENCES `rts`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `users` ADD CONSTRAINT `users_rwId_fkey` FOREIGN KEY (`rwId`) REFERENCES `rws`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

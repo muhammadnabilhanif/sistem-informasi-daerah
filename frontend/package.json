@@ -1,0 +1,31 @@
+{
+    "name": "sistem-wilayah-frontend",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev -p 3001",
+        "build": "next build",
+        "start": "next start -p 3001",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@tanstack/react-query": "^5.102.8",
+        "axios": "^1.20.0",
+        "lucide-react": "^1.71.0",
+        "next": "^14.2.35",
+        "next-themes": "^0.4.6",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "sweetalert2": "^11.26.25",
+        "zustand": "^5.0.16"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "@types/react": "^18.2.0",
+        "@types/react-dom": "^18.2.0",
+        "autoprefixer": "^10.5.4",
+        "postcss": "^8.5.28",
+        "tailwindcss": "^3.4.19",
+        "typescript": "^5.0.0"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "villageId": "a55623f9-6e7c-48f0-af04-66fac6740e57",
+    "title": "<script>alert('XSS')</script>",
+    "content": "Test XSS",
+    "status": "DRAFT",
+    "isPublic": true
+}

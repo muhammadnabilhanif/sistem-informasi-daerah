@@ -1,0 +1,503 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   FONT
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  @apply bg-gray-50 text-gray-800 antialiased;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full hover:bg-gray-400 transition;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s infinite;
+}
+
+/* ============================================
+   CARD
+   ============================================ */
+.card {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md;
+}
+
+.card-gradient {
+  @apply rounded-2xl shadow-md p-6 transition-all hover:shadow-lg hover:scale-[1.02];
+}
+
+/* ============================================
+   BUTTON
+   ============================================ */
+.btn {
+  @apply px-4 py-2.5 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2;
+}
+
+.btn-primary {
+  @apply btn bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-md hover:shadow-lg;
+}
+
+.btn-secondary {
+  @apply btn bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95;
+}
+
+.btn-success {
+  @apply btn bg-green-600 text-white hover:bg-green-700 active:scale-95 shadow-md;
+}
+
+.btn-danger {
+  @apply btn bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-md;
+}
+
+.btn-sm {
+  @apply px-3 py-1.5 text-sm rounded-lg;
+}
+
+/* ============================================
+   INPUT
+   ============================================ */
+.input {
+  @apply w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none;
+}
+
+.input:disabled {
+  @apply bg-gray-100 cursor-not-allowed;
+}
+
+.label {
+  @apply block text-sm font-medium text-gray-700 mb-1.5;
+}
+
+/* ============================================
+   TABLE
+   ============================================ */
+.table-modern {
+  @apply w-full;
+}
+
+.table-modern thead {
+  @apply bg-gray-50 border-b border-gray-200;
+}
+
+.table-modern thead th {
+  @apply px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider;
+}
+
+.table-modern tbody tr {
+  @apply border-b border-gray-100 hover:bg-blue-50/30 transition-colors;
+}
+
+.table-modern tbody td {
+  @apply px-6 py-4 text-sm;
+}
+
+/* ============================================
+   BADGE
+   ============================================ */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-success {
+  @apply badge bg-green-100 text-green-700;
+}
+
+.badge-warning {
+  @apply badge bg-yellow-100 text-yellow-700;
+}
+
+.badge-danger {
+  @apply badge bg-red-100 text-red-700;
+}
+
+.badge-info {
+  @apply badge bg-blue-100 text-blue-700;
+}
+
+.badge-gray {
+  @apply badge bg-gray-100 text-gray-700;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.sidebar-link {
+  @apply flex items-center gap-3 px-4 py-3 rounded-xl text-gray-300 hover:bg-white/10 hover:text-white transition-all;
+}
+
+.sidebar-link.active {
+  @apply bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg;
+}
+
+/* ============================================
+   CHAT BUBBLE
+   ============================================ */
+.chat-bubble-user {
+  @apply bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-3 shadow-md;
+}
+
+.chat-bubble-ai {
+  @apply bg-white text-gray-800 rounded-2xl rounded-bl-sm px-4 py-3 shadow-md border border-gray-100;
+}
+
+/* ============================================
+   LOADING SKELETON
+   ============================================ */
+.skeleton {
+  @apply bg-gray-200 rounded animate-pulse-soft;
+}
+
+/* ============================================
+   AI FLOATING CHAT WIDGET
+   ============================================ */
+
+.ai-float-panel {
+  position: fixed;
+  bottom: 92px;
+  right: 24px;
+  width: 380px;
+  height: 560px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.22);
+  animation: aiSlideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes aiSlideUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ai-float-header {
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.ai-float-header-left { display: flex; align-items: center; gap: 10px; }
+.ai-float-avatar {
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  border: 1px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+.ai-float-title { color: #fff; font-weight: 700; font-size: 14px; margin: 0; }
+.ai-float-status {
+  color: #bfdbfe; font-size: 11px; margin: 0;
+  display: flex; align-items: center; gap: 4px;
+}
+.ai-float-dot {
+  width: 6px; height: 6px;
+  background: #4ade80; border-radius: 50%; display: inline-block;
+}
+.ai-float-header-actions { display: flex; align-items: center; gap: 5px; }
+.ai-float-select {
+  padding: 3px 6px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 7px;
+  font-size: 11px;
+  outline: none;
+}
+.ai-float-icon-btn {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  color: #fff;
+  width: 28px; height: 28px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.ai-float-icon-btn:hover { background: rgba(255,255,255,0.28); }
+
+.ai-float-messages {
+  flex: 1;
+  overflow-y: auto;
+  background: linear-gradient(to bottom, #f8fafc, #f0f4ff);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-float-welcome {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 0 4px;
+}
+.ai-float-welcome-icon {
+  width: 62px; height: 62px;
+  background: linear-gradient(135deg, #3b82f6, #7c3aed);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin-bottom: 12px;
+  box-shadow: 0 8px 24px rgba(79,70,229,0.35);
+}
+.ai-float-welcome-title { font-weight: 700; font-size: 15px; color: #1e293b; margin: 0 0 5px; }
+.ai-float-welcome-sub { font-size: 12px; color: #64748b; margin: 0 0 14px; line-height: 1.5; }
+.ai-float-suggestions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 7px; width: 100%;
+}
+.ai-float-suggestion-btn {
+  padding: 8px 9px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: #374151; font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: all 0.15s;
+}
+.ai-float-suggestion-btn:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 4px 12px rgba(59,130,246,0.15);
+}
+.ai-float-hint { font-size: 10px; color: #94a3b8; margin-top: 12px; }
+
+.ai-float-msg-row {
+  display: flex; gap: 7px; margin-bottom: 10px;
+}
+.ai-float-msg-row.user { justify-content: flex-end; }
+.ai-float-msg-row.ai  { justify-content: flex-start; }
+
+.ai-float-msg-avatar {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #3b82f6, #7c3aed);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0; margin-top: 2px;
+}
+.ai-float-user-avatar {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  flex-shrink: 0; margin-top: 2px;
+}
+.ai-float-msg-content { max-width: 76%; display: flex; flex-direction: column; }
+
+.ai-float-bubble { font-size: 13px; line-height: 1.55; }
+.ai-float-bubble p { margin: 0; white-space: pre-wrap; }
+.ai-float-bubble.user {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: #fff; padding: 9px 13px;
+  border-radius: 14px 14px 3px 14px;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.28);
+}
+.ai-float-bubble.ai {
+  background: #fff; color: #1e293b; padding: 9px 13px;
+  border-radius: 14px 14px 14px 3px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border: 1px solid #f1f5f9;
+}
+
+.ai-float-typing { display: flex; align-items: center; gap: 7px; }
+.ai-float-typing span {
+  width: 7px; height: 7px;
+  background: #93c5fd; border-radius: 50%; display: inline-block;
+  animation: aiTypingBounce 1s infinite;
+}
+.ai-float-typing span:nth-child(2) { animation-delay: 0.15s; }
+.ai-float-typing span:nth-child(3) { animation-delay: 0.3s; }
+.ai-float-typing em { font-size: 11px; color: #64748b; font-style: normal; }
+
+@keyframes aiTypingBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
+.ai-float-meta {
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 3px; font-size: 10px; color: #94a3b8;
+}
+.ai-float-meta.user { justify-content: flex-end; }
+.ai-float-meta.ai  { justify-content: flex-start; padding-left: 2px; }
+
+.ai-float-error {
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+  padding: 8px 12px;
+  display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0;
+}
+.ai-float-error p { font-size: 12px; color: #b91c1c; margin: 0; }
+
+.ai-float-input-area {
+  background: #fff;
+  padding: 10px 12px 8px;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+.ai-float-input-row { display: flex; gap: 8px; align-items: flex-end; }
+.ai-float-input-wrap { flex: 1; position: relative; }
+.ai-float-textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 9px 36px 9px 11px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 13px;
+  font-size: 13px; font-family: inherit;
+  outline: none; resize: none;
+  min-height: 40px; max-height: 100px; line-height: 1.5;
+  transition: border-color 0.15s;
+}
+.ai-float-textarea:focus { border-color: #3b82f6; }
+.ai-float-char-count {
+  position: absolute; right: 9px; bottom: 9px;
+  font-size: 10px; color: #94a3b8;
+}
+.ai-float-send-btn {
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  border: none; border-radius: 11px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.38);
+  transition: all 0.15s;
+}
+.ai-float-send-btn:hover { box-shadow: 0 6px 18px rgba(37,99,235,0.5); transform: translateY(-1px); }
+.ai-float-send-btn.disabled {
+  background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none;
+}
+.ai-float-spinner {
+  width: 17px; height: 17px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%; display: inline-block;
+  animation: aiSpin 0.8s linear infinite;
+}
+@keyframes aiSpin { to { transform: rotate(360deg); } }
+
+.ai-float-footer-hint {
+  font-size: 10px; color: #94a3b8;
+  text-align: center; margin: 5px 0 0;
+}
+
+.ai-float-toggle {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 9999;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  border: none; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1px;
+  box-shadow: 0 8px 28px rgba(37,99,235,0.45);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ai-float-toggle:hover { transform: scale(1.1); box-shadow: 0 12px 32px rgba(37,99,235,0.55); }
+.ai-float-toggle.open {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  transform: rotate(10deg) scale(1.05);
+}
+.ai-float-toggle-icon { font-size: 22px; line-height: 1; }
+.ai-float-toggle-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.85); letter-spacing: 0.5px; }
+
+@media (max-width: 480px) {
+  .ai-float-panel {
+    width: calc(100vw - 24px);
+    right: 12px;
+    bottom: 80px;
+    height: calc(100vh - 100px);
+    border-radius: 16px;
+  }
+  .ai-float-toggle { bottom: 16px; right: 16px; }
+}
+
+/* ========================================= */
+/* GLOBAL DARK MODE OVERRIDES (AUTO-CONVERT) */
+/* ========================================= */
+
+html.dark body {
+  background-color: #030712; /* gray-950 */
+  color: #f3f4f6; /* gray-100 */
+}
+
+/* Mengubah semua kotak/Card yang tadinya putih menjadi gelap */
+html.dark .bg-white {
+  background-color: #1f2937 !important; /* gray-800 */
+  border-color: #374151 !important; /* gray-700 */
+}
+
+/* Mengubah teks yang tadinya gelap menjadi terang */
+html.dark .text-gray-800, 
+html.dark .text-gray-900 {
+  color: #f3f4f6 !important;
+}
+
+/* Mengubah teks abu-abu agar lebih terang */
+html.dark .text-gray-600, 
+html.dark .text-gray-500 {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+/* Mengubah background abu-abu terang menjadi gelap */
+html.dark .bg-gray-50, 
+html.dark .bg-gray-100 {
+  background-color: #111827 !important; /* gray-900 */
+}
+
+/* Mengubah garis batas (border) agar tidak terlalu kontras */
+html.dark .border-gray-100, 
+html.dark .border-gray-200 {
+  border-color: #374151 !important;
+}

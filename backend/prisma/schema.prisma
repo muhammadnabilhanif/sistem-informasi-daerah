@@ -1,0 +1,733 @@
+// ============================================
+// DATABASE SCHEMA - SISTEM INFORMASI WILAYAH
+// Database: db_sistem_wilayah
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum RoleName {
+  SUPER_ADMIN
+  VILLAGE_ADMIN
+  CITIZEN
+  RT_ADMIN
+  RW_ADMIN
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ✅ TAMBAHKAN INI
+enum VillageType {
+  DESA
+  KELURAHAN
+}
+
+// ============================================
+// TABEL USER & AUTH
+// ============================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  phone         String?
+  avatarUrl     String?
+  gender        String? 
+  
+  // Account
+  isActive      Boolean   @default(true)
+  isVerified    Boolean   @default(false)
+  lastLoginAt   DateTime?
+  loginAttempts Int       @default(0)
+  lockedUntil   DateTime?
+
+  // ✅ OTP & Verifikasi Email
+  verificationCode String?
+  otpExpiresAt     DateTime?
+  isEmailVerified  Boolean   @default(false)
+
+  // ✅ Relasi Admin (RT/RW yang mengelola)
+  managedRt   Rt?     @relation("RtAdmin", fields: [managedRtId], references: [id])
+  managedRtId String? @unique
+  
+  managedRw   Rw?     @relation("RwAdmin", fields: [managedRwId], references: [id])
+  managedRwId String? @unique
+  
+  // ✅ Relasi Warga (Warga yang tinggal di RT/RW tersebut)
+  rtId String?
+  rt   Rt?   @relation("WargaRt", fields: [rtId], references: [id])
+  
+  rwId String?
+  rw   Rw?   @relation("WargaRw", fields: [rwId], references: [id])
+  
+  // Relations
+  roles         UserRole[]
+  userVillages  UserVillage[]
+  auditLogs     AuditLog[]
+  complaints Complaint[]
+  
+  createdVillageProfiles VillageProfile[] @relation("ProfileCreator")
+  updatedVillageProfiles VillageProfile[] @relation("ProfileUpdater")
+  createdAnnouncements Announcement[] @relation("AnnouncementCreator")
+  newsArticles  News[] @relation("NewsAuthor")
+  createdAgendas Agenda[] @relation("AgendaCreator")
+  uploadedDocuments PublicDocument[] @relation("DocumentUploader")
+  aiConversations AIConversation[]
+  serviceRequests       ServiceRequest[] @relation("ServiceApplicant")
+  verifiedRequests      ServiceRequest[] @relation("ServiceVerifier")
+  serviceStatusChanges  ServiceStatusLog[] @relation("ServiceStatusChanger")
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("users")
+}
+
+model Role {
+  id            String    @id @default(uuid())
+  name          RoleName  @unique
+  description   String?
+  isSystem      Boolean   @default(false)
+  
+  userRoles     UserRole[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("roles")
+}
+
+model UserRole {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleId        String
+  role          Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime  @default(now())
+  
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model UserVillage {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  villageId     String
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  isPrimary     Boolean   @default(false)
+  
+  createdAt     DateTime  @default(now())
+  
+  @@unique([userId, villageId])
+  @@map("user_villages")
+}
+
+// ============================================
+// TABEL WILAYAH
+// ============================================
+
+model Province {
+  id            String    @id @default(uuid())
+  code          String    @unique
+  name          String
+  capital       String?
+  isActive      Boolean   @default(true)
+  
+  regencies     Regency[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("provinces")
+}
+
+model Regency {
+  id            String    @id @default(uuid())
+  provinceId    String
+  province      Province  @relation(fields: [provinceId], references: [id], onDelete: Cascade)
+  code          String    @unique
+  name          String
+  capital       String?
+  isActive      Boolean   @default(true)
+  
+  districts     District[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("regencies")
+}
+
+model District {
+  id            String    @id @default(uuid())
+  regencyId     String
+  regency       Regency   @relation(fields: [regencyId], references: [id], onDelete: Cascade)
+  code          String    @unique
+  name          String
+  isActive      Boolean   @default(true)
+  
+  villages      Village[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("districts")
+}
+
+model Village {
+  id            String    @id @default(uuid())
+  districtId    String
+  district      District  @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  code          String    @unique
+  name          String
+  type          VillageType?
+  isActive      Boolean   @default(true)
+  
+  // Relations
+  userVillages  UserVillage[]
+  auditLogs     AuditLog[]
+  
+  // Village Profile relations
+  profile       VillageProfile?
+  officials     VillageOfficial[]
+  programs      VillageProgram[]
+
+  announcements Announcement[]
+  news          News[]
+  agendas       Agenda[]
+  documents     PublicDocument[]
+  statistics    ResidentStatistic[]
+  aiConversations AIConversation[]
+  serviceTypes    ServiceType[]
+  rws             Rw[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("villages")
+}
+
+// ============================================
+// TABEL AUDIT LOG
+// ============================================
+
+model AuditLog {
+  id            String    @id @default(uuid())
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName      String?
+  userEmail     String?
+  userRole      String?
+  villageId     String?
+  village       Village?  @relation(fields: [villageId], references: [id], onDelete: SetNull)
+  
+  action        String
+  resource      String
+  resourceId    String?
+  description   String?    // ✅ FIELD INI HARUS ADA
+  oldValues     Json?
+  newValues     Json?
+  ipAddress     String?
+  userAgent     String?
+  statusCode    Int?       // ✅ FIELD INI JUGA
+  errorMessage  String?    // ✅ FIELD INI JUGA
+  durationMs    Int?       // ✅ FIELD INI JUGA
+  
+  createdAt     DateTime  @default(now())
+
+  @@map("audit_logs")
+}
+
+// ============================================
+// PROFIL DESA/KELURAHAN
+// ============================================
+
+model VillageProfile {
+  id            String    @id @default(uuid())
+  villageId     String    @unique
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  // Profile
+  description   String?
+  history       String?
+  vision        String?
+  mission       String?
+  motto         String?
+  
+  // Contact
+  address       String?
+  phone         String?
+  email         String?
+  website       String?
+  
+  // Location
+  latitude      Float?
+  longitude     Float?
+  
+  // Area
+  totalAreaKm2  Float?
+  landAreaKm2   Float?
+  waterAreaKm2  Float?
+  
+  // Boundaries
+  northBoundary String?
+  southBoundary String?
+  westBoundary  String?
+  eastBoundary  String?
+  
+  // Status
+  status        String    @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  publishedAt   DateTime?
+  
+  createdById   String?
+  createdBy     User?     @relation("ProfileCreator", fields: [createdById], references: [id])
+  updatedById   String?
+  updatedBy     User?     @relation("ProfileUpdater", fields: [updatedById], references: [id])
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("village_profiles")
+}
+
+// ============================================
+// STRUKTUR PEMERINTAHAN
+// ============================================
+
+model VillageOfficial {
+  id            String    @id @default(uuid())
+  villageId     String
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  name          String
+  position      String
+  positionLevel Int       @default(1)
+  photoUrl      String?
+  biography     String?
+  phone         String?
+  email         String?
+  startDate     DateTime
+  endDate       DateTime?
+  isActive      Boolean   @default(true)
+  isPublic      Boolean   @default(true)
+  orderIndex    Int       @default(0)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("village_officials")
+}
+
+// ============================================
+// PROGRAM KERJA
+// ============================================
+
+model VillageProgram {
+  id            String    @id @default(uuid())
+  villageId     String
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  title         String
+  description   String?
+  category      String?
+  budget        Float?
+  status        String    @default("PLANNING") // PLANNING, ONGOING, COMPLETED, CANCELLED
+  startDate     DateTime?
+  endDate       DateTime?
+  isPublic      Boolean   @default(true)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("village_programs")
+}
+
+// ============================================
+// PENGUMUMAN
+// ============================================
+
+model Announcement {
+  id            String    @id @default(uuid())
+  villageId     String
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  title         String
+  content       String
+  summary       String?
+  priority      String    @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  status        String    @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  publishedAt   DateTime?
+  expiredAt     DateTime?
+  isPublic      Boolean   @default(true)
+  
+  createdById   String?
+  createdBy     User?     @relation("AnnouncementCreator", fields: [createdById], references: [id])
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("announcements")
+}
+
+// ============================================
+// BERITA
+// ============================================
+
+model News {
+  id            String    @id @default(uuid())
+  villageId     String
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  title         String
+  slug          String    @unique
+  content       String
+  excerpt       String?
+  thumbnailUrl  String?
+  authorName    String?
+  authorId      String?
+  author        User?     @relation("NewsAuthor", fields: [authorId], references: [id])
+  category      String?
+  tags          String?
+  views         Int       @default(0)
+  status        String    @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  publishedAt   DateTime?
+  isFeatured    Boolean   @default(false)
+  isPublic      Boolean   @default(true)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("news")
+}
+
+// ============================================
+// AGENDA
+// ============================================
+
+model Agenda {
+  id            String    @id @default(uuid())
+  villageId     String
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  title         String
+  description   String?
+  location      String?
+  latitude      Float?
+  longitude     Float?
+  startDatetime DateTime
+  endDatetime   DateTime?
+  category      String?
+  organizer     String?
+  status        String    @default("UPCOMING") // UPCOMING, ONGOING, COMPLETED, CANCELLED
+  isPublic      Boolean   @default(true)
+  
+  createdById   String?
+  createdBy     User?     @relation("AgendaCreator", fields: [createdById], references: [id])
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("agendas")
+}
+
+// ============================================
+// DOKUMEN PUBLIK
+// ============================================
+
+model PublicDocument {
+  id            String    @id @default(uuid())
+  villageId     String
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  title         String
+  description   String?
+  fileName      String
+  filePath      String
+  fileSize      Int
+  fileType      String
+  mimeType      String
+  category      String?
+  tags          String?
+  status        String    @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  isPublic      Boolean   @default(true)
+  publishedAt   DateTime?
+  expiredAt     DateTime?
+  downloads     Int       @default(0)
+  
+  uploadedById  String?
+  uploadedBy    User?     @relation("DocumentUploader", fields: [uploadedById], references: [id])
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@map("public_documents")
+}
+
+// ============================================
+// STATISTIK PENDUDUK (AGREGAT)
+// ============================================
+
+model ResidentStatistic {
+  id            String    @id @default(uuid())
+  villageId     String
+  village       Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  year          Int
+  semester      Int       @default(1) // 1 atau 2
+  
+  // Total
+  totalPopulation Int     @default(0)
+  maleCount       Int     @default(0)
+  femaleCount     Int     @default(0)
+  totalHouseholds Int     @default(0)
+  totalFamilies   Int     @default(0)
+  
+  // JSONB fields untuk fleksibilitas
+  ageGroups       Json?
+  educationStats  Json?
+  occupationStats Json?
+  religionStats   Json?
+  
+  // Metadata
+  dataSource      String?
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([villageId, year, semester])
+  @@map("resident_statistics")
+}
+
+// ============================================
+// AI CONVERSATION
+// ============================================
+
+model AIConversation {
+  id               String          @id @default(uuid())
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  villageId        String?
+  village          Village?        @relation(fields: [villageId], references: [id])
+  title            String          @default("New Conversation") @db.VarChar(255)   // ✅ UBAH
+  status           String          @default("ACTIVE")
+  
+  messages         AIMessage[]
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id               String          @id @default(uuid())
+  conversationId   String
+  conversation     AIConversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  role             String
+  content          String          @db.Text   // ✅ UBAH INI
+  contextSources   Json?
+  tokensUsed       Int?
+  responseTimeMs   Int?
+  
+  createdAt        DateTime        @default(now())
+
+  @@map("ai_messages")
+}
+
+model AiSetting {
+  id              String   @id @default(uuid())
+  aiName          String   @default("Asisten Desa")
+  tone            String   @default("FORMAL")
+  customPrompt    String?  @db.Text
+  aiModel         String   @default("gemini-2.5-flash")
+  apiKeyConfig    Json?    // Menyimpan konfigurasi API Key terenkripsi: { primary, fallbacks: [] }
+  updatedAt       DateTime @updatedAt
+
+  @@map("ai_settings")
+}
+
+// ============================================
+// PELAYANAN MASYARAKAT (SURAT MENYURAT)
+// ============================================
+
+model ServiceType {
+  id              String    @id @default(uuid())
+  villageId       String
+  village         Village   @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  
+  name            String    // "Surat Keterangan Domisili"
+  code            String    // "SKD"
+  description     String?
+  requirements    Json?     // ["KTP", "KK", "Surat RT/RW"]
+  template        String?   // Template surat
+  processingDays  Int       @default(1)
+  isActive        Boolean   @default(true)
+  orderIndex      Int       @default(0)
+  
+  requests        ServiceRequest[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@unique([villageId, code])
+  @@map("service_types")
+}
+
+model ServiceRequest {
+  id              String    @id @default(uuid())
+  requestNumber   String    @unique // "SKD-2026-0001"
+  
+  serviceTypeId   String
+  serviceType     ServiceType @relation(fields: [serviceTypeId], references: [id])
+  
+  // Pemohon
+  applicantId     String
+  applicant       User      @relation("ServiceApplicant", fields: [applicantId], references: [id])
+  
+  // Detail
+  purpose         String    // Keperluan
+  notes           String?
+  attachments     Json?     // [{name, url, type}]
+  
+  // Data Pemohon (snapshot)
+  applicantName   String
+  applicantNik    String?
+  applicantPhone  String?
+  applicantAddress String?
+  
+  // Status
+  status          String    @default("PENDING")
+  // PENDING, VERIFIED, APPROVED, REJECTED, COMPLETED
+  
+  // Verifikasi
+  verifiedById    String?
+  verifiedBy      User?     @relation("ServiceVerifier", fields: [verifiedById], references: [id])
+  verifiedAt      DateTime?
+  rejectionReason String?
+  verifiedByLevel String?
+  
+  // Hasil
+  resultFileUrl   String?
+  completedAt     DateTime?
+  
+  // Relations
+  statusLogs      ServiceStatusLog[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  @@map("service_requests")
+}
+
+model ServiceStatusLog {
+  id              String    @id @default(uuid())
+  requestId       String
+  request         ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  
+  status          String
+  notes           String?
+  changedById     String?
+  changedBy       User?     @relation("ServiceStatusChanger", fields: [changedById], references: [id])
+  
+  createdAt       DateTime  @default(now())
+
+  @@map("service_status_logs")
+}
+
+// ============================================
+// MODEL RT & RW
+// ============================================
+
+model Rw {
+  id        String   @id @default(uuid())
+  villageId String
+  number    String   // Contoh: "001", "002"
+  
+  village   Village  @relation(fields: [villageId], references: [id], onDelete: Cascade)
+  rts       Rt[]     
+  
+  // ✅ Relasi User
+  admins    User[]   @relation("RwAdmin") // Admin RW
+  warga     User[]   @relation("WargaRw") // Warga yang tinggal di RW ini
+  complaints Complaint[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([villageId, number])
+  @@map("rws")
+}
+
+model Rt {
+  id        String   @id @default(uuid())
+  rwId      String
+  number    String   // Contoh: "001", "002"
+  
+  rw        Rw       @relation(fields: [rwId], references: [id], onDelete: Cascade)
+  
+  // ✅ Relasi User
+  admins    User[]   @relation("RtAdmin") // Admin RT
+  warga     User[]   @relation("WargaRt") // Warga yang tinggal di RT ini
+  complaints Complaint[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([rwId, number])
+  @@map("rts")
+}
+
+model Complaint {
+  id          String   @id @default(cuid())
+  title       String   
+  description String   @db.Text 
+  imageUrl    String?  
+  status      String   @default("PENDING") 
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  // PERBAIKAN DI SINI (Sesuaikan dengan nama model Anda)
+  rtId        String?
+  rt          Rt?      @relation(fields: [rtId], references: [id]) // Jika modelnya 'Rt'
+  
+  rwId        String?
+  rw          Rw?      @relation(fields: [rwId], references: [id]) // Jika modelnya 'Rw'
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("complaints")
+}
