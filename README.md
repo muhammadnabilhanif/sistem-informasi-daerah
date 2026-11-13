@@ -1,6 +1,6 @@
 # 🏛️ Sistem Informasi Daerah dan Pemerintahan Berbasis AI
 
-![Backend CI Pipeline](https://github.com/muhammadnabilhanif/sistem-informasi-daerah/actions/workflows/ci.yml/badge.svg)
+[![Backend CI Pipeline](https://github.com/muhammadnabilhanif/sistem-informasi-daerah/actions/workflows/ci.yml/badge.svg)](https://github.com/muhammadnabilhanif/sistem-informasi-daerah/actions)
 
  Sistem Informasi Daerah dan Pemerintahan Berbasis AI Platform digital terintegrasi berbasis web yang dirancang untuk mengelola tata kelola pemerintahan daerah bertingkat (Provinsi, Kabupaten/Kota, Kecamatan, Desa/Kelurahan, hingga Rukun Warga [RW] dan Rukun Tetangga [RT]). Sistem ini memfasilitasi pelayanan administrasi persuratan warga secara berjenjang, publikasi informasi desa, penanganan aduan masyarakat, visualisasi demografi kependudukan, serta asisten percakapan cerdas (AI Assistant) yang didukung oleh Google Gemini dan Groq LLaMA.
 ---
