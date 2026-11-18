@@ -19,7 +19,7 @@
 ## 🔗 Tautan Artefak & Dokumentasi Proyek
 
 * 🎨 **Prototipe Interaktif UI/UX (Figma):** [Buka Desain Figma SIWIL-AI](https://www.figma.com/design/fUy4PCPjZ92w8aGDP9h5vj/UI-UX-SIWIL-AI---Muhammad-Nabil-Hanif?node-id=0-1&t=My3x5dDPkW4fvLqe-1)
-* 🎥 **Video Demo & Presentasi Proyek:** *(Link YouTube / Google Drive akan ditambahkan setelah rekaman selesai)*
+* 🎥 **Video Demo & Presentasi Proyek:**  https://youtu.be/GBD8VxXRI0U?si=v7uPyW03IS1ycbnm
 * ⚙️ **Status CI/CD Pipeline:** [Lihat GitHub Actions](https://github.com/muhammadnabilhanif/sistem-informasi-daerah/actions)
 
 ---
